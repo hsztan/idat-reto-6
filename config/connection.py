@@ -12,6 +12,11 @@ class Connection:
         self.cursor.execute(query)
         self.commit()
 
+    def execute_my_query(self, query):
+        self.cursor.execute(query)
+        self.commit()
+        return self.cursor.fetchall()
+
     def select(self, data=[]):  # lista
         fields = ", ".join(data)
         if not len(data):  # False
