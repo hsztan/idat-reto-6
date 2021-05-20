@@ -97,12 +97,21 @@ class Nota:
     @classmethod
     def all_notas(cls):
         try:
-            conn = Connection('bimestre')
-            records = conn.select([])
+            conn = Connection('nota')
+            query = '''
+                SELECT n.id, n.nota, a.nombre, c.nombre, ae.nombre FROM nota n 
+                JOIN alumno a ON n.alumno_id = a.id 
+                JOIN curso c ON n.curso_id = c.id
+                JOIN aescolar ae ON n.aescolar_id = ae.id
+            '''
+            records = conn.execute_my_query(query)
 
             for record in records:
                 print(f'ID: {record[0]}')
-                print(f'BIMESTRE: {record[1]}')
+                print(f'NOTA: {record[1]}')
+                print(f'ALUMNO: {record[2]}')
+                print(f'CURSO: {record[3]}')
+                print(f'AÑO ESCOLAR: {record[4]}')
                 # print(f'Precio: {record[2]}')
                 print('=====================')
             return records
@@ -113,10 +122,10 @@ class Nota:
         try:
             conn = Connection('nota')
             conn.insert({
-                'nombre': self.nota,
-                'nombre': self.alumno_id,
-                'nombre': self.curso_id,
-                'nombre': self.aescolar_id,
+                'nota': self.nota,
+                'alumno_id': self.alumno_id,
+                'curso_id': self.curso_id,
+                'aescolar_id': self.aescolar_id,
                 # 'precio': self.precio
             })
             print(
@@ -546,9 +555,27 @@ class Cole:
             if (opcion == '4'):
                 self.interfaz_curso()
             if (opcion == '5'):
-                pass
+                self.interfaz_nota()
             if (opcion == '6'):
                 exit()
+            else:
+                print('Ingrese una opción válida')
+
+    def interfaz_nota(self):
+        while True:
+            print('''
+                NOTAS
+                1) Ver Notas
+                2) Crear Nota
+                3) Regresar
+            ''')
+            opcion = input('>')
+            if (opcion == '1'):
+                Nota.all_notas()
+            if (opcion == '2'):
+                self.ingresar_nota()
+            if (opcion == '3'):
+                return
             else:
                 print('Ingrese una opción válida')
 
@@ -623,6 +650,16 @@ class Cole:
                 return
             else:
                 print('Ingrese una opción válida')
+
+    def ingresar_nota(self):
+        Alumno.all_alumno()
+        alumno_id = input('Escoger ID del alumno > ')
+        Curso.all_curso()
+        curso_id = input('Escoger ID del curso > ')
+        Aescolar.all_aescolar()
+        aescolar_id = input('Escoger ID del año escolar > ')
+        nota = input('Ingrese la nota del curso > ')
+        Nota(nota, alumno_id, curso_id, aescolar_id).insert_nota()
 
     def ingresar_curso(self):
         nombre = input('Ingresar nombre del curso > ')
