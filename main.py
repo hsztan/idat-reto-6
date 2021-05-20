@@ -142,8 +142,9 @@ class Nota:
 
 
 class Curso:
-    def __init__(self, nombre):
+    def __init__(self, nombre, profesor_id):
         self.nombre = nombre
+        self.profesor_id = profesor_id
         # self.insert_curso()
         # self.create_table()
 
@@ -166,12 +167,16 @@ class Curso:
     def all_curso(cls):
         try:
             conn = Connection('curso')
-            records = conn.select([])
+            query = '''
+                SELECT c.id, c.nombre, p.nombre FROM curso c
+                JOIN profesor p ON c.profesor_id = p.id
+            '''
+            records = conn.execute_my_query(query)
 
             for record in records:
                 print(f'ID: {record[0]}')
                 print(f'Curso: {record[1]}')
-                # print(f'Precio: {record[2]}')
+                print(f'Profesor: {record[2] }')
                 print('=====================')
             return records
         except Exception as e:
@@ -182,6 +187,7 @@ class Curso:
             conn = Connection('curso')
             conn.insert({
                 'nombre': self.nombre,
+                'profesor_id': self.profesor_id
                 # 'precio': self.precio
             })
             print(
@@ -207,12 +213,11 @@ class Curso:
 
 
 class Profesor:
-    def __init__(self, nombre, dni, edad, correo, curso_id):
+    def __init__(self, nombre, dni, edad, correo):
         self.nombre = nombre
         self.dni = dni
         self.edad = edad
         self.correo = correo
-        self.curso_id = curso_id
         # self.insert_curso()
         # self.create_table()
 
@@ -239,8 +244,7 @@ class Profesor:
         try:
             conn = Connection('profesor')
             query = '''
-                SELECT p.id, p.nombre, p.dni, p.edad, p.correo, c.nombre FROM profesor p
-                JOIN curso c ON p.curso_id = c.id
+                SELECT p.id, p.nombre, p.dni, p.edad, p.correo FROM profesor p
             '''
             records = conn.execute_my_query(query)
 
@@ -250,7 +254,6 @@ class Profesor:
                 print(f'DNI: {record[2]}')
                 print(f'Edad: {record[3]}')
                 print(f'Correo: {record[4]}')
-                print(f'Curso: {record[5]}')
                 # print(f'Precio: {record[2]}')
                 print('=====================')
             return records
@@ -265,7 +268,6 @@ class Profesor:
                 'dni': self.dni,
                 'edad': self.edad,
                 'correo': self.correo,
-                'curso_id': self.curso_id,
                 # 'precio': self.precio
             })
             print(
@@ -540,13 +542,49 @@ class Cole:
             if (opcion == '2'):
                 self.interfaz_profesor()
             if (opcion == '3'):
-                pass
+                self.interfaz_salon()
             if (opcion == '4'):
-                pass
+                self.interfaz_curso()
             if (opcion == '5'):
                 pass
             if (opcion == '6'):
                 exit()
+            else:
+                print('Ingrese una opción válida')
+
+    def interfaz_curso(self):
+        while True:
+            print('''
+                CURSOS
+                1) Mostrar Cursos
+                2) Crear Curso
+                3) Regresar
+            ''')
+            opcion = input('>')
+            if (opcion == '1'):
+                Curso.all_curso()
+            if (opcion == '2'):
+                self.ingresar_curso()
+            if (opcion == '3'):
+                return
+            else:
+                print('Ingrese una opción válida')
+
+    def interfaz_salon(self):
+        while True:
+            print('''
+                SALONES
+                1) Mostrar Salones
+                2) Crear Salon
+                3) Regresar
+            ''')
+            opcion = input('>')
+            if (opcion == '1'):
+                Salon.all_salon()
+            if (opcion == '2'):
+                self.ingresar_salon()
+            if (opcion == '3'):
+                return
             else:
                 print('Ingrese una opción válida')
 
@@ -586,8 +624,24 @@ class Cole:
             else:
                 print('Ingrese una opción válida')
 
+    def ingresar_curso(self):
+        nombre = input('Ingresar nombre del curso > ')
+        Profesor.all_profesor()
+        profesor_id = input('Ingresar ID de profesor > ')
+        Curso(nombre, profesor_id).insert_curso()
+
+    def ingresar_salon(self):
+        nombre = input('Ingresar nombre del salón > ')
+        Aescolar.all_aescolar()
+        aescolar_id = input('Ingresar año escolar > ')
+        Salon(nombre, aescolar_id).insert_salon()
+
     def ingresar_profesor(self):
-        pass
+        nombre = input('Nombre del profesor > ')
+        dni = input('DNI > ')
+        edad = input('Edad > ')
+        correo = input('Correo > ')
+        Profesor(nombre, dni, edad, correo).insert_profesor()
 
     def ingresar_alumno(self):
         nombre = input('Nombre del alumno > ')
